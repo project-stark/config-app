@@ -1,0 +1,115 @@
+<dom-module id="config-app">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        font-family: 'Roboto', sans-serif;
+        @apply(--layout-vertical);
+        min-height: 100vh;
+      }
+
+      config-home, config-board, config-wifi, config-mqtt, config-io {
+        @apply(--layout-flex);
+      }
+
+      app-toolbar {
+        @apply(--toolbar);
+      }
+    </style>
+
+    <app-header-layout>
+      <app-header fixed>
+        <app-toolbar>
+          <div main-title>Config App</div>
+        </app-toolbar>
+      </app-header>
+    </app-header-layout>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <app-route route="{{route}}" pattern="/home" active="{{homeActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/board" active="{{boardActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/wifi" active="{{wifiActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/mqtt" active="{{mqttActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/io" active="{{ioActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/switch" active="{{switchActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/sensor" active="{{sensorActive}}"></app-route>
+    <app-route route="{{route}}" pattern="/config/actuator" active="{{actuatorActive}}"></app-route>
+
+    <template is="dom-if" restamp if="{{homeActive}}">
+      <config-home config="{{config}}"></config-home>
+    </template>
+
+    <template is="dom-if" restamp if="{{boardActive}}">
+      <config-board config="{{config}}"></config-board>
+    </template>
+
+    <template is="dom-if" restamp if="{{wifiActive}}">
+      <config-wifi config="{{config}}"></config-wifi>
+    </template>
+
+    <template is="dom-if" restamp if="{{mqttActive}}">
+      <config-mqtt config="{{config}}"></config-mqtt>
+    </template>
+
+    <template is="dom-if" restamp if="{{ioActive}}">
+      <config-io config="{{config}}"></config-io>
+    </template>
+
+    <template is="dom-if" restamp if="{{switchActive}}">
+      <config-switch config="{{config}}"></config-switch>
+    </template>
+
+    <template is="dom-if" restamp if="{{sensorActive}}">
+      <config-sensor config="{{config}}"></config-sensor>
+    </template>
+
+    <template is="dom-if" restamp if="{{actuatorActive}}">
+      <config-actuator config="{{config}}"></config-actuator>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-app',
+
+      properties: {
+        config: {
+          type: Object,
+          value: function () {
+            return {
+              wifi: {
+                ap: {
+                  ssid: '',
+                  password: ''
+                },
+                sta: {
+                  ssid: '',
+                  password: ''
+                }
+              },
+              mqtt: {
+                host: ''
+              },
+              io: {
+                switches: [],
+                sensors: [],
+                actuators: []
+              }
+            }
+          }
+        }
+      },
+
+      attached: function () {
+        this.set('route.path', '/home');
+      }
+
+    });
+  </script>
+
+</dom-module>

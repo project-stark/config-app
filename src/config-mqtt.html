@@ -1,0 +1,63 @@
+<dom-module id="config-mqtt">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --paper-card-header-color: var(--primary-color);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+
+      paper-card {
+        @apply(--input-card);
+      }
+
+      paper-button {
+        @apply(--next-button);
+      }
+
+      #errorToast {
+        --paper-toast-background-color: var(--error-color);
+      }
+    </style>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <paper-card heading="MQTT">
+      <paper-input type="text" label="Host" value="{{config.mqtt.host}}" required></paper-input>
+      <paper-input type="number" label="Port" value="{{config.mqtt.port}}" min="1" max="65535"></paper-input>
+      <paper-input type="text" value="{{config.mqtt.username}}" label="Username"></paper-input>
+      <paper-input type="password" value="{{config.mqtt.password}}" label="Password"></paper-input>
+      <paper-button on-tap="next">Next</paper-button>
+    </paper-card>
+
+    <paper-toast id="errorToast"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-mqtt',
+
+      properties: {
+        config: {
+          type: Object
+        }
+      },
+
+      next: function () {
+        const host = this.config.mqtt.host, port = this.config.mqtt.port;
+        var error = '';
+        if (host === '') error = 'Host is Required.';
+        else if (port < 0 || port > 65535) error = 'Port must be a number between 0 to 65535.';
+        if (!error) this.set('route.path', '/config/io');
+        else this.$.errorToast.show(error);
+      }
+
+    });
+  </script>
+
+</dom-module>

@@ -1,0 +1,82 @@
+<dom-module id="config-wifi">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --paper-card-header-color: var(--primary-color);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+
+      paper-card {
+        @apply(--input-card);
+      }
+
+      paper-button {
+        @apply(--next-button);
+      }
+
+      #errorToast {
+        --paper-toast-background-color: var(--error-color);
+      }
+
+    </style>
+
+    <iron-ajax
+        auto
+        url="http://192.168.4.1/aps"
+        handle-as="json"
+        last-response="{{aps}}"
+        on-error="handleError"
+        id="ajax"
+        loading="{{loading}}">
+    </iron-ajax>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <paper-card heading="WiFi Credentials" class="input-card">
+      <paper-dropdown-menu value="{{config.wifi.sta.ssid}}" label="SSID" required disabled="{{loading}}">
+        <paper-listbox class="dropdown-content">
+          <template is="dom-repeat" items="{{aps}}" as="ap">
+            <paper-item>{{ap.ssid}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-input type="password" value="{{config.wifi.sta.password}}" label="Password" required
+                   disabled="{{loading}}">
+      </paper-input>
+      <paper-button on-tap="next" disabled="{{loading}}">Next</paper-button>
+    </paper-card>
+
+    <paper-toast id="errorToast"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-wifi',
+
+      properties: {
+        config: {
+          type: Object
+        }
+      },
+
+      next: function () {
+        const ssid = this.config.wifi.sta.ssid,
+          password = this.config.wifi.sta.password;
+        var error = '';
+        if (ssid === '') error = 'SSID is Required.';
+        else if (password === '') error = 'Password is Required.';
+        else if (password.length < 8) error = 'Password must be at least 8 characters long.';
+        if (!error) this.set('route.path', '/config/mqtt');
+        else this.$.errorToast.show(error);
+      }
+
+    });
+  </script>
+
+</dom-module>

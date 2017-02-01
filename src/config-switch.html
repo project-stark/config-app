@@ -1,0 +1,138 @@
+<dom-module id="config-switch">
+
+  <template>
+
+    <style>
+
+      :host {
+        display: block;
+        --paper-card-header-color: var(--primary-color);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        --paper-toast-background-color: var(--error-color);
+      }
+
+      paper-card {
+        @apply(--input-card);
+      }
+
+      paper-button {
+        @apply(--next-button);
+      }
+
+    </style>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <paper-card heading="Switch" class="input-card">
+      <paper-input type="text" value="{{switch.name}}" label="Name" required></paper-input>
+      <paper-dropdown-menu value="{{switch.access}}" label="Access" required>
+        <paper-listbox class="dropdown-content">
+          <paper-item>Disconnected</paper-item>
+          <paper-item>Read-Only</paper-item>
+          <paper-item>Connected</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu value="{{switch.input}}" label="Input" required>
+        <paper-listbox class="dropdown-content">
+          <paper-item>2</paper-item>
+          <paper-item>4</paper-item>
+          <paper-item>5</paper-item>
+          <paper-item>12</paper-item>
+          <paper-item>13</paper-item>
+          <paper-item>14</paper-item>
+          <paper-item>15</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu value="{{switch.output}}" label="Output" required>
+        <paper-listbox class="dropdown-content">
+          <paper-item>0</paper-item>
+          <paper-item>4</paper-item>
+          <paper-item>5</paper-item>
+          <paper-item>12</paper-item>
+          <paper-item>13</paper-item>
+          <paper-item>14</paper-item>
+          <paper-item>15</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu value="{{switch.default}}" label="Default" required>
+        <paper-listbox class="dropdown-content">
+          <paper-item>Off</paper-item>
+          <paper-item>On</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+
+      <paper-button on-tap="save">Save</paper-button>
+    </paper-card>
+
+    <paper-toast id="errorToast"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-switch',
+
+      properties: {
+        config: {
+          type: Object
+        },
+        'switch': {
+          type: Object,
+          value: function () {
+            return {
+              name: '',
+              access: '',
+              input: '',
+              output: '',
+              'default': ''
+            }
+          }
+        }
+      },
+
+      save: function () {
+        // Todo: Same pin should not be used in multiple devices.
+        const name = this.switch.name, access = this.switch.access, input = this.switch.input,
+          output = this.switch.output, defaultValue = this.switch.default;
+        var error = '', topic;
+        if (name === '') error = 'Name is Required.';
+        else if (access === '') error = 'Access is Required.';
+        else if (input === '') error = 'Input pin is Required.';
+        else if (output === '') error = 'Output pin is Required.';
+        else if (defaultValue === '') error = 'Default value is Required.';
+        else {
+          topic = name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^-a-z0-9]+/g, '');
+          for (var i = 0; i < this.config.io.switches.length; i++) {
+            if (this.config.io.switches[i].topic === topic) {
+              error = 'The Name has been used already.';
+              break;
+            }
+          }
+        }
+        if (!error) {
+          this.push('config.io.switches', {
+            name: this.switch.name,
+            access: this.ACCESSES[this.switch.access],
+            input: parseInt(this.switch.input),
+            output: parseInt(this.switch.output),
+            'default': this.switch.default === 'On',
+            topic: topic
+          });
+          this.set('route.path', '/config/io');
+        }
+        else this.$.errorToast.show(error);
+      },
+
+      ACCESSES: {
+        'Disconnected': 'none',
+        'Read-Only': 'readonly',
+        'Connected': 'readwrite'
+      }
+
+    });
+
+  </script>
+
+</dom-module>

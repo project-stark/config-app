@@ -1,0 +1,65 @@
+<dom-module id="config-board">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --paper-card-header-color: var(--primary-color);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+
+      paper-card {
+        @apply(--input-card);
+      }
+
+      paper-button {
+        @apply(--next-button);
+      }
+
+      #errorToast {
+        --paper-toast-background-color: var(--error-color);
+      }
+
+    </style>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <paper-card heading="Switch Board" class="input-card">
+      <paper-input type="text" value="{{config.wifi.ap.ssid}}" label="Name" required>
+      </paper-input>
+      <paper-input type="password" value="{{config.wifi.ap.password}}" label="Password" required>
+      </paper-input>
+      <paper-button on-tap="next">Next</paper-button>
+    </paper-card>
+
+    <paper-toast id="errorToast"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-board',
+
+      properties: {
+        config: {
+          type: Object
+        }
+      },
+
+      next: function () {
+        const ssid = this.config.wifi.ap.ssid,
+          password = this.config.wifi.ap.password;
+        var error = '';
+        if (ssid === '') error = 'Name is Required.';
+        else if (password === '') error = 'Password is Required.';
+        else if (password.length < 8) error = 'Password must be at least 8 characters long.';
+        if (!error) this.set('route.path', '/config/wifi');
+        else this.$.errorToast.show(error);
+      }
+    });
+  </script>
+
+</dom-module>

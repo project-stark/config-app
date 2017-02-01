@@ -1,0 +1,168 @@
+<dom-module id="config-io">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+        --paper-item-icon-width: 36px;
+      }
+
+      #successToast {
+        --paper-toast-background-color: var(--success-color);
+      }
+
+      #errorToast {
+        --paper-toast-background-color: var(--error-color);
+      }
+
+      #containerCard {
+        padding: 10px;
+      }
+
+      #containerCard > div {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
+        @apply(--layout-wrap);
+      }
+
+      .device-card {
+        @apply(--device-card);
+      }
+
+      .add-device-action {
+        @apply(--layout-vertical);
+      }
+
+      .add-device-action > paper-button {
+        @apply(--layout-center);
+      }
+
+    </style>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <iron-ajax
+        url="http://192.168.4.1"
+        method="POST"
+        content-type="application/json"
+        body="{{config}}"
+        on-response="handleResponse"
+        on-error="handleError"
+        loading="{{loading}}"
+        id="ajax">
+    </iron-ajax>
+
+    <paper-card id="containerCard" heading="Devices">
+
+      <div class="card-content">
+
+        <paper-card heading="Switches" class="device-card">
+          <paper-listbox>
+            <template is="dom-repeat" items="{{config.io.switches}}" as="switch">
+              <paper-icon-item>
+                <iron-icon icon="settings-input-hdmi" item-icon></iron-icon>
+                <paper-item-body>
+                  {{switch.name}}
+                </paper-item-body>
+                <paper-icon-button icon="clear" on-tap="removeDevice" data-type="switches"></paper-icon-button>
+              </paper-icon-item>
+            </template>
+          </paper-listbox>
+
+          <div class="card-actions add-device-action">
+            <paper-button on-tap="addDevice" data-type="switch">Add Switch</paper-button>
+          </div>
+        </paper-card>
+
+        <paper-card heading="Sensors" class="device-card">
+          <paper-listbox>
+            <template is="dom-repeat" items="{{config.io.sensors}}" as="sensor">
+              <paper-icon-item>
+                <iron-icon icon="settings-brightness" item-icon></iron-icon>
+                <paper-item-body>
+                  {{sensor.name}}
+                </paper-item-body>
+                <paper-icon-button icon="clear" on-tap="removeDevice" data-type="sensors"></paper-icon-button>
+              </paper-icon-item>
+            </template>
+          </paper-listbox>
+
+          <div class="card-actions add-device-action">
+            <paper-button on-tap="addDevice" data-type="sensor">Add Sensor</paper-button>
+          </div>
+        </paper-card>
+
+        <paper-card heading="Actuators" class="device-card">
+          <paper-listbox>
+            <template is="dom-repeat" items="{{config.io.actuators}}" as="actuator">
+              <paper-icon-item>
+                <iron-icon icon="settings-input-svideo" item-icon></iron-icon>
+                <paper-item-body>
+                  {{actuator.name}}
+                </paper-item-body>
+                <paper-icon-button icon="clear" on-tap="removeDevice" data-type="actuators"></paper-icon-button>
+              </paper-icon-item>
+            </template>
+          </paper-listbox>
+
+          <div class="card-actions add-device-action">
+            <paper-button on-tap="addDevice" data-type="actuator">Add Actuator</paper-button>
+          </div>
+        </paper-card>
+      </div>
+
+      <div class="card-actions">
+        <paper-button disabled="{{loading}}" on-tap="saveDevices">Save</paper-button>
+      </div>
+
+    </paper-card>
+
+    <paper-toast text="The ESP Board has been configured successfully." id="successToast"
+                 on-iron-overlay-closed="goToHome" duration="5000"></paper-toast>
+    <paper-toast text="Could not configure the ESP Board." id="errorToast" duration="5000"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-io',
+
+      properties: {
+        config: {
+          type: Object
+        }
+      },
+
+      saveDevices: function () {
+        this.$.ajax.generateRequest();
+      },
+
+      handleResponse: function () {
+        this.$.successToast.open();
+      },
+
+      handleError: function () {
+        this.$.errorToast.open();
+      },
+
+      addDevice: function (event) {
+        this.set('route.path', '/config/' + event.target.getAttribute('data-type'));
+      },
+
+      removeDevice: function (event) {
+        this.splice('config.io.' + event.target.parentNode.getAttribute('data-type'),
+          event.model.index, 1);
+      },
+
+      goToHome: function () {
+        this.set('route.path', '/home');
+      }
+
+    });
+  </script>
+
+</dom-module>

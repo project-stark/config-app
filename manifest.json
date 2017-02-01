@@ -1,7 +1,0 @@
-{
-  "name": "config-app",
-  "short_name": "config-app",
-  "description": "ESP Board configuration app",
-  "start_url": "/",
-  "display": "standalone"
-}

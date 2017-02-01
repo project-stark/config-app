@@ -1,0 +1,65 @@
+<dom-module id="config-home">
+
+  <template>
+
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+        --paper-toast-background-color: var(--error-color);
+      }
+    </style>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+
+    <iron-ajax
+        url="http://192.168.4.1"
+        handle-as="json"
+        on-response="handleResponse"
+        on-error="handleError"
+        id="ajax"
+        loading="{{loading}}">
+    </iron-ajax>
+
+    <paper-button on-tap="connect" disabled="{{loading}}">Connect to ESP Board</paper-button>
+    <paper-toast id="errorToast" text="Could not connect to ESP Board." duration="5000"></paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'config-home',
+
+      properties: {
+        config: {
+          type: Object
+        }
+      },
+
+      connect: function () {
+        this.$.ajax.generateRequest();
+      },
+
+      handleResponse: function () {
+        this.set('config', this.$.ajax.lastResponse);
+        this.set('route.path', '/config/board');
+      },
+
+      handleError: function () {
+        if (this.$.ajax.lastError.statusText == '') this.$.errorToast.open();
+        else {
+          this.set('config.ap.ssid', '');
+          this.set('config.ap.password', '');
+          this.set('config.io.switches', []);
+          this.set('config.io.sensors', []);
+          this.set('config.io.actuators', []);
+          this.set('route.path', '/config/board');
+        }
+      }
+
+    });
+  </script>
+
+</dom-module>
